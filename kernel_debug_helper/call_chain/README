@@ -1,0 +1,5 @@
+1. copy the whole directory to  kernel_source_root/kernel (or anywhere else).
+2. Add "obj-y += call_chain/" to kernel_source_root/kernel/Makefile
+3. copy include/call_chain.h to kernel_source_root/include/
+
+4. in other source files, include <call_chain.h> and use the functions in it.

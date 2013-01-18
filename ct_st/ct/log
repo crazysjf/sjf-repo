@@ -1,0 +1,280 @@
+printk
+|-- __add_preempt_count
+|   |-- debug_locks_off
+|   |-- printk (r)
+|   `-- dump_stack
+|       `-- printk (r)
+|-- __sub_preempt_count
+|   |-- debug_locks_off (^)
+|   |-- printk (r)
+|   `-- dump_stack (^)
+|-- preempt_schedule
+|   |-- __add_preempt_count (^)
+|   |-- schedule
+|   |   |-- __add_preempt_count (^)
+|   |   |-- debug_smp_processor_id
+|   |   |   |-- __add_preempt_count (^)
+|   |   |   |-- printk_ratelimit
+|   |   |   |   `-- __printk_ratelimit
+|   |   |   |       |-- __add_preempt_count (^)
+|   |   |   |       |-- __sub_preempt_count (^)
+|   |   |   |       |-- preempt_schedule (r)
+|   |   |   |       `-- printk (r)
+|   |   |   |-- printk (r)
+|   |   |   |-- __print_symbol
+|   |   |   |   |-- sprint_symbol
+|   |   |   |   |   |-- kallsyms_lookup
+|   |   |   |   |   |   |-- is_ksym_addr
+|   |   |   |   |   |   |   `-- in_gate_area_no_task
+|   |   |   |   |   |   |-- get_symbol_pos
+|   |   |   |   |   |   |   `-- __bug
+|   |   |   |   |   |   |       `-- printk (r)
+|   |   |   |   |   |   |-- get_symbol_offset
+|   |   |   |   |   |   |-- kallsyms_expand_symbol
+|   |   |   |   |   |   |-- module_address_lookup
+|   |   |   |   |   |   |   `-- get_ksymbol
+|   |   |   |   |   |   |       `-- strchr
+|   |   |   |   |   |   `-- strncpy
+|   |   |   |   |   `-- sprintf
+|   |   |   |   |       `-- vsnprintf
+|   |   |   |   |           |-- printk (r)
+|   |   |   |   |           |-- dump_stack (^)
+|   |   |   |   |           |-- skip_atoi
+|   |   |   |   |           |-- strnlen
+|   |   |   |   |           `-- number
+|   |   |   |   |               |-- __aeabi_llsr
+|   |   |   |   |               `-- put_dec
+|   |   |   |   |                   |-- put_dec_trunc
+|   |   |   |   |                   `-- put_dec_full
+|   |   |   |   `-- printk (r)
+|   |   |   |-- dump_stack (^)
+|   |   |   `-- __sub_preempt_count (^)
+|   |   |-- __release_kernel_lock
+|   |   |   `-- __sub_preempt_count (^)
+|   |   |-- __schedule_bug
+|   |   |   |-- printk (r)
+|   |   |   `-- dump_stack (^)
+|   |   |-- profile_hits
+|   |   |-- __update_rq_clock
+|   |   |   |-- debug_smp_processor_id (^)
+|   |   |   |-- printk (r)
+|   |   |   `-- dump_stack (^)
+|   |   |-- deactivate_task
+|   |   |   |-- dequeue_task
+|   |   |   `-- dec_nr_running
+|   |   |       |-- update_curr_load
+|   |   |       |   `-- __update_curr_load
+|   |   |       |       `-- calc_delta_mine
+|   |   |       |           `-- __aeabi_uidiv
+|   |   |       `-- update_load_sub
+|   |   |-- __sub_preempt_count (^)
+|   |   |-- preempt_schedule (r)
+|   |   |-- _test_and_set_bit_le
+|   |   |-- __new_context
+|   |   |   |-- debug_smp_processor_id (^)
+|   |   |   `-- flush_context
+|   |   |       |-- debug_smp_processor_id (^)
+|   |   |       `-- _test_and_set_bit_le (^)
+|   |   |-- __check_kvm_seq
+|   |   |   `-- memcpy
+|   |   |-- cpu_v6_switch_mm
+|   |   |-- __switch_to
+|   |   |-- __mmdrop
+|   |   |   |-- __bug (^)
+|   |   |   |-- free_pgd_slow
+|   |   |   |   |-- __pmd_error
+|   |   |   |   |   `-- printk (r)
+|   |   |   |   |-- __free_pages
+|   |   |   |   |   |-- free_hot_page
+|   |   |   |   |   |   `-- free_hot_cold_page
+|   |   |   |   |   |       |-- bad_page
+|   |   |   |   |   |       |   |-- printk (r)
+|   |   |   |   |   |       |   |-- dump_stack (^)
+|   |   |   |   |   |       |   `-- add_taint
+|   |   |   |   |   |       |-- __add_preempt_count (^)
+|   |   |   |   |   |       |-- debug_smp_processor_id (^)
+|   |   |   |   |   |       |-- get_pageblock_flags_group
+|   |   |   |   |   |       |-- free_pages_bulk
+|   |   |   |   |   |       |   |-- __add_preempt_count (^)
+|   |   |   |   |   |       |   |-- get_pageblock_flags_group (^)
+|   |   |   |   |   |       |   |-- destroy_compound_page
+|   |   |   |   |   |       |   |   `-- bad_page (^)
+|   |   |   |   |   |       |   |-- __bug (^)
+|   |   |   |   |   |       |   |-- __sub_preempt_count (^)
+|   |   |   |   |   |       |   `-- preempt_schedule (r)
+|   |   |   |   |   |       |-- __sub_preempt_count (^)
+|   |   |   |   |   |       `-- preempt_schedule (r)
+|   |   |   |   |   `-- __free_pages_ok
+|   |   |   |   |       |-- __add_preempt_count (^)
+|   |   |   |   |       |-- __sub_preempt_count (^)
+|   |   |   |   |       |-- preempt_schedule (r)
+|   |   |   |   |       |-- bad_page (^)
+|   |   |   |   |       `-- free_one_page
+|   |   |   |   |           |-- __add_preempt_count (^)
+|   |   |   |   |           |-- get_pageblock_flags_group (^)
+|   |   |   |   |           |-- destroy_compound_page (^)
+|   |   |   |   |           |-- __bug (^)
+|   |   |   |   |           |-- __sub_preempt_count (^)
+|   |   |   |   |           `-- preempt_schedule (r)
+|   |   |   |   `-- free_pages
+|   |   |   |       `-- __free_pages (^)
+|   |   |   `-- kmem_cache_free
+|   |   |       |-- debug_smp_processor_id (^)
+|   |   |       `-- __slab_free
+|   |   |           |-- __add_preempt_count (^)
+|   |   |           |-- add_partial
+|   |   |           |   |-- __add_preempt_count (^)
+|   |   |           |   |-- __sub_preempt_count (^)
+|   |   |           |   `-- preempt_schedule (r)
+|   |   |           |-- __sub_preempt_count (^)
+|   |   |           |-- preempt_schedule (r)
+|   |   |           |-- remove_partial
+|   |   |           |   |-- __add_preempt_count (^)
+|   |   |           |   |-- __sub_preempt_count (^)
+|   |   |           |   `-- preempt_schedule (r)
+|   |   |           |-- discard_slab
+|   |   |           |   `-- free_slab
+|   |   |           |       |-- call_rcu
+|   |   |           |       `-- __free_slab
+|   |   |           |           |-- slab_pad_check
+|   |   |           |           |   |-- check_bytes
+|   |   |           |           |   |-- slab_err
+|   |   |           |           |   |   |-- vsnprintf (^)
+|   |   |           |           |   |   |-- slab_bug
+|   |   |           |           |   |   |   |-- vsnprintf (^)
+|   |   |           |           |   |   |   `-- printk (r)
+|   |   |           |           |   |   |-- print_page_info
+|   |   |           |           |   |   |   `-- printk (r)
+|   |   |           |           |   |   `-- dump_stack (^)
+|   |   |           |           |   |-- print_section
+|   |   |           |           |   |   `-- printk (r)
+|   |   |           |           |   `-- restore_bytes
+|   |   |           |           |       |-- slab_fix
+|   |   |           |           |       |   |-- vsnprintf (^)
+|   |   |           |           |       |   `-- printk (r)
+|   |   |           |           |       `-- memset
+|   |   |           |           |-- check_object
+|   |   |           |           |   |-- check_bytes_and_report
+|   |   |           |           |   |   |-- check_bytes (^)
+|   |   |           |           |   |   |-- slab_bug (^)
+|   |   |           |           |   |   |-- printk (r)
+|   |   |           |           |   |   |-- print_trailer
+|   |   |           |           |   |   |   |-- print_tracking
+|   |   |           |           |   |   |   |   |-- get_track
+|   |   |           |           |   |   |   |   `-- print_track
+|   |   |           |           |   |   |   |       |-- printk (r)
+|   |   |           |           |   |   |   |       `-- __print_symbol (^)
+|   |   |           |           |   |   |   |-- print_page_info (^)
+|   |   |           |           |   |   |   |-- printk (r)
+|   |   |           |           |   |   |   |-- print_section (^)
+|   |   |           |           |   |   |   `-- dump_stack (^)
+|   |   |           |           |   |   `-- restore_bytes (^)
+|   |   |           |           |   |-- check_pad_bytes
+|   |   |           |           |   |   `-- check_bytes_and_report (^)
+|   |   |           |           |   |-- __aeabi_idivmod
+|   |   |           |           |   `-- object_err
+|   |   |           |           |       |-- slab_bug (^)
+|   |   |           |           |       `-- print_trailer (^)
+|   |   |           |           `-- __free_pages (^)
+|   |   |           `-- free_debug_processing
+|   |   |               |-- check_slab
+|   |   |               |   |-- slab_err (^)
+|   |   |               |   `-- slab_pad_check (^)
+|   |   |               |-- __aeabi_idivmod (^)
+|   |   |               |-- on_freelist
+|   |   |               |   |-- __aeabi_idivmod (^)
+|   |   |               |   |-- object_err (^)
+|   |   |               |   |-- slab_err (^)
+|   |   |               |   `-- slab_fix (^)
+|   |   |               |-- object_err (^)
+|   |   |               |-- check_object (^)
+|   |   |               |-- slab_err (^)
+|   |   |               |-- printk (r)
+|   |   |               |-- dump_stack (^)
+|   |   |               |-- remove_full
+|   |   |               |   |-- __add_preempt_count (^)
+|   |   |               |   |-- __sub_preempt_count (^)
+|   |   |               |   `-- preempt_schedule (r)
+|   |   |               |-- set_track
+|   |   |               |   |-- debug_smp_processor_id (^)
+|   |   |               |   `-- __memzero
+|   |   |               |-- trace
+|   |   |               |   |-- printk (r)
+|   |   |               |   |-- dump_stack (^)
+|   |   |               |   `-- print_section (^)
+|   |   |               |-- init_object
+|   |   |               |   `-- memset (^)
+|   |   |               `-- slab_fix (^)
+|   |   |-- __put_task_struct
+|   |   |   |-- printk (r)
+|   |   |   |-- dump_stack (^)
+|   |   |   |-- free_uid
+|   |   |   |   |-- _atomic_dec_and_lock
+|   |   |   |   |   |-- __add_preempt_count (^)
+|   |   |   |   |   |-- __sub_preempt_count (^)
+|   |   |   |   |   `-- preempt_schedule (r)
+|   |   |   |   |-- __sub_preempt_count (^)
+|   |   |   |   |-- preempt_schedule (r)
+|   |   |   |   |-- key_put
+|   |   |   |   |   `-- schedule_work
+|   |   |   |   |       `-- queue_work
+|   |   |   |   |           |-- __bug (^)
+|   |   |   |   |           |-- __add_preempt_count (^)
+|   |   |   |   |           |-- debug_smp_processor_id (^)
+|   |   |   |   |           |-- wq_per_cpu
+|   |   |   |   |           |-- __queue_work
+|   |   |   |   |           |   |-- __add_preempt_count (^)
+|   |   |   |   |           |   |-- insert_work
+|   |   |   |   |           |   |   |-- __bug (^)
+|   |   |   |   |           |   |   `-- __wake_up
+|   |   |   |   |           |   |       |-- __add_preempt_count (^)
+|   |   |   |   |           |   |       |-- __wake_up_common
+|   |   |   |   |           |   |       |-- __sub_preempt_count (^)
+|   |   |   |   |           |   |       `-- preempt_schedule (r)
+|   |   |   |   |           |   |-- __sub_preempt_count (^)
+|   |   |   |   |           |   `-- preempt_schedule (r)
+|   |   |   |   |           |-- __sub_preempt_count (^)
+|   |   |   |   |           `-- preempt_schedule (r)
+|   |   |   |   `-- kmem_cache_free (^)
+|   |   |   |-- groups_free
+|   |   |   |   |-- free_pages (^)
+|   |   |   |   `-- kfree
+|   |   |   |       |-- debug_smp_processor_id (^)
+|   |   |   |       `-- __slab_free (^)
+|   |   |   |-- profile_handoff_task
+|   |   |   |   `-- atomic_notifier_call_chain
+|   |   |   |       `-- __atomic_notifier_call_chain
+|   |   |   |           |-- __add_preempt_count (^)
+|   |   |   |           |-- notifier_call_chain
+|   |   |   |           |-- __sub_preempt_count (^)
+|   |   |   |           `-- preempt_schedule (r)
+|   |   |   `-- free_task
+|   |   |       |-- free_pages (^)
+|   |   |       `-- kmem_cache_free (^)
+|   |   `-- __reacquire_kernel_lock
+|   |       `-- __add_preempt_count (^)
+|   `-- __sub_preempt_count (^)
+`-- vprintk
+    |-- __add_preempt_count (^)
+    |-- debug_smp_processor_id (^)
+    |-- zap_locks
+    |   `-- init_waitqueue_head
+    |-- __sub_preempt_count (^)
+    |-- preempt_schedule (^)
+    |-- vscnprintf
+    |   `-- vsnprintf (^)
+    |-- printascii
+    |-- __aeabi_uidiv (^)
+    |-- sprintf (^)
+    |-- emit_log_char
+    |-- release_console_sem
+    |   |-- __add_preempt_count (^)
+    |   |-- __sub_preempt_count (^)
+    |   |-- preempt_schedule (^)
+    |   |-- call_console_drivers
+    |   |   |-- __bug (^)
+    |   |   `-- _call_console_drivers
+    |   |       `-- __call_console_drivers
+    |   `-- wake_up_klogd
+    |       `-- __wake_up (^)
+    `-- schedule_work (^)

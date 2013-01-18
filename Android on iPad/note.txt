@@ -1,0 +1,3 @@
+* 20110515 
+** 如何在苹果的设备上安装Android
+参考 http://www.idroidproject.org/

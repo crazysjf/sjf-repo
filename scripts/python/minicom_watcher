@@ -1,0 +1,22 @@
+#!/usr/bin/python
+import pexpect
+
+def output_filter(str):
+    #print str + "8"
+    return str
+
+child = pexpect.spawn ('sudo minicom -m -c on -C minicom.log')
+board_ip = "10.1.137.100"
+#child = pexpect.spawn ('telnet ' + board_ip)
+#child = pexpect.spawn("ls")
+#child.expect ('login: ')
+#child.sendline ('root')
+
+#print child.before
+#while True:
+    #child.expect ('^.*$')
+#    print child.readline()
+#    print child.before
+child.interact('\x1d',None, None)
+#child.kill(1)
+#child.expect(pexpect.EOF)

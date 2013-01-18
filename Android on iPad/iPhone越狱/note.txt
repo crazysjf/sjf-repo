@@ -1,0 +1,5 @@
+* 教程
+http://www.iphonedownloadblog.com/jailbreak/
+
+* Chronic 源代码
+https://github.com/Chronic-Dev

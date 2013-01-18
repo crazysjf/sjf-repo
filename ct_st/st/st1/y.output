@@ -1,0 +1,541 @@
+   0  $accept : term $end
+
+   1  term : struct_or_union_specifier
+   2       | comment
+   3       | others
+
+   4  struct_or_union_specifier : struct_or_union IDENTIFIER
+   5                            | struct_or_union IDENTIFIER L_BRACE struct_declaration_list R_BRACE
+   6                            | struct_or_union L_BRACE struct_declaration_list R_BRACE
+
+   7  struct_or_union : STRUCT
+   8                  | UNION
+
+   9  struct_declaration_list : struct_declaration
+  10                          | struct_declaration_list struct_declaration
+
+  11  struct_declaration : specifier_qualifier_list struct_declarator_list SEMICOLON
+
+  12  specifier_qualifier_list : type_specifier_a
+  13                           | type_specifier_a specifier_qualifier_list
+  14                           | TYPE_QUALIFIER
+  15                           | TYPE_QUALIFIER specifier_qualifier_list
+
+  16  type_specifier_a : TYPE_SPECIFIER
+  17                   | struct_or_union_specifier
+
+  18  struct_declarator_list : other_declarator_list
+
+  19  other_declarator_list : other_declarator
+  20                        | other_declarator other_declarator_list
+
+  21  other_declarator : IDENTIFIER
+  22                   | L_BRACE
+  23                   | R_BRACE
+  24                   | SEMICOLON
+  25                   | CR
+  26                   | OTHERS
+  27                   | COMMENT
+  28                   | TYPE_SPECIFIER
+  29                   | TYPE_QUALIFIER
+  30                   | COMMA
+  31                   | L_PAREN
+  32                   | R_PAREN
+  33                   | ASTERISK
+
+  34  comment : COMMENT
+
+  35  others : OTHERS
+  36         | IDENTIFIER
+  37         | STRUCT
+  38         | UNION
+  39         | L_BRACE
+  40         | R_BRACE
+  41         | SEMICOLON
+  42         | CR
+
+state 0
+	$accept : . term $end  (0)
+
+	IDENTIFIER  shift 1
+	STRUCT  shift 2
+	UNION  shift 3
+	SEMICOLON  shift 4
+	CR  shift 5
+	OTHERS  shift 6
+	COMMENT  shift 7
+	L_BRACE  shift 8
+	R_BRACE  shift 9
+	.  error
+
+	term  goto 10
+	struct_or_union_specifier  goto 11
+	comment  goto 12
+	others  goto 13
+	struct_or_union  goto 14
+
+
+state 1
+	others : IDENTIFIER .  (36)
+
+	.  reduce 36
+
+
+state 2
+	struct_or_union : STRUCT .  (7)
+	others : STRUCT .  (37)
+
+	$end  reduce 37
+	IDENTIFIER  reduce 7
+	L_BRACE  reduce 7
+
+
+state 3
+	struct_or_union : UNION .  (8)
+	others : UNION .  (38)
+
+	$end  reduce 38
+	IDENTIFIER  reduce 8
+	L_BRACE  reduce 8
+
+
+state 4
+	others : SEMICOLON .  (41)
+
+	.  reduce 41
+
+
+state 5
+	others : CR .  (42)
+
+	.  reduce 42
+
+
+state 6
+	others : OTHERS .  (35)
+
+	.  reduce 35
+
+
+state 7
+	comment : COMMENT .  (34)
+
+	.  reduce 34
+
+
+state 8
+	others : L_BRACE .  (39)
+
+	.  reduce 39
+
+
+state 9
+	others : R_BRACE .  (40)
+
+	.  reduce 40
+
+
+state 10
+	$accept : term . $end  (0)
+
+	$end  accept
+
+
+state 11
+	term : struct_or_union_specifier .  (1)
+
+	.  reduce 1
+
+
+state 12
+	term : comment .  (2)
+
+	.  reduce 2
+
+
+state 13
+	term : others .  (3)
+
+	.  reduce 3
+
+
+state 14
+	struct_or_union_specifier : struct_or_union . IDENTIFIER  (4)
+	struct_or_union_specifier : struct_or_union . IDENTIFIER L_BRACE struct_declaration_list R_BRACE  (5)
+	struct_or_union_specifier : struct_or_union . L_BRACE struct_declaration_list R_BRACE  (6)
+
+	IDENTIFIER  shift 15
+	L_BRACE  shift 16
+	.  error
+
+
+15: shift/reduce conflict (shift 17, reduce 4) on L_BRACE
+state 15
+	struct_or_union_specifier : struct_or_union IDENTIFIER .  (4)
+	struct_or_union_specifier : struct_or_union IDENTIFIER . L_BRACE struct_declaration_list R_BRACE  (5)
+
+	L_BRACE  shift 17
+	$end  reduce 4
+	IDENTIFIER  reduce 4
+	STRUCT  reduce 4
+	UNION  reduce 4
+	SEMICOLON  reduce 4
+	CR  reduce 4
+	OTHERS  reduce 4
+	COMMENT  reduce 4
+	TYPE_SPECIFIER  reduce 4
+	TYPE_QUALIFIER  reduce 4
+	COMMA  reduce 4
+	R_BRACE  reduce 4
+	L_PAREN  reduce 4
+	R_PAREN  reduce 4
+	ASTERISK  reduce 4
+
+
+state 16
+	struct_or_union_specifier : struct_or_union L_BRACE . struct_declaration_list R_BRACE  (6)
+
+	STRUCT  shift 18
+	UNION  shift 19
+	TYPE_SPECIFIER  shift 20
+	TYPE_QUALIFIER  shift 21
+	.  error
+
+	struct_or_union_specifier  goto 22
+	struct_or_union  goto 14
+	struct_declaration_list  goto 23
+	struct_declaration  goto 24
+	specifier_qualifier_list  goto 25
+	type_specifier_a  goto 26
+
+
+state 17
+	struct_or_union_specifier : struct_or_union IDENTIFIER L_BRACE . struct_declaration_list R_BRACE  (5)
+
+	STRUCT  shift 18
+	UNION  shift 19
+	TYPE_SPECIFIER  shift 20
+	TYPE_QUALIFIER  shift 21
+	.  error
+
+	struct_or_union_specifier  goto 22
+	struct_or_union  goto 14
+	struct_declaration_list  goto 27
+	struct_declaration  goto 24
+	specifier_qualifier_list  goto 25
+	type_specifier_a  goto 26
+
+
+state 18
+	struct_or_union : STRUCT .  (7)
+
+	.  reduce 7
+
+
+state 19
+	struct_or_union : UNION .  (8)
+
+	.  reduce 8
+
+
+state 20
+	type_specifier_a : TYPE_SPECIFIER .  (16)
+
+	.  reduce 16
+
+
+21: shift/reduce conflict (shift 20, reduce 14) on TYPE_SPECIFIER
+21: shift/reduce conflict (shift 21, reduce 14) on TYPE_QUALIFIER
+state 21
+	specifier_qualifier_list : TYPE_QUALIFIER .  (14)
+	specifier_qualifier_list : TYPE_QUALIFIER . specifier_qualifier_list  (15)
+
+	STRUCT  shift 18
+	UNION  shift 19
+	TYPE_SPECIFIER  shift 20
+	TYPE_QUALIFIER  shift 21
+	IDENTIFIER  reduce 14
+	SEMICOLON  reduce 14
+	CR  reduce 14
+	OTHERS  reduce 14
+	COMMENT  reduce 14
+	COMMA  reduce 14
+	L_BRACE  reduce 14
+	R_BRACE  reduce 14
+	L_PAREN  reduce 14
+	R_PAREN  reduce 14
+	ASTERISK  reduce 14
+
+	struct_or_union_specifier  goto 22
+	struct_or_union  goto 14
+	specifier_qualifier_list  goto 28
+	type_specifier_a  goto 26
+
+
+state 22
+	type_specifier_a : struct_or_union_specifier .  (17)
+
+	.  reduce 17
+
+
+state 23
+	struct_or_union_specifier : struct_or_union L_BRACE struct_declaration_list . R_BRACE  (6)
+	struct_declaration_list : struct_declaration_list . struct_declaration  (10)
+
+	STRUCT  shift 18
+	UNION  shift 19
+	TYPE_SPECIFIER  shift 20
+	TYPE_QUALIFIER  shift 21
+	R_BRACE  shift 29
+	.  error
+
+	struct_or_union_specifier  goto 22
+	struct_or_union  goto 14
+	struct_declaration  goto 30
+	specifier_qualifier_list  goto 25
+	type_specifier_a  goto 26
+
+
+state 24
+	struct_declaration_list : struct_declaration .  (9)
+
+	.  reduce 9
+
+
+state 25
+	struct_declaration : specifier_qualifier_list . struct_declarator_list SEMICOLON  (11)
+
+	IDENTIFIER  shift 31
+	SEMICOLON  shift 32
+	CR  shift 33
+	OTHERS  shift 34
+	COMMENT  shift 35
+	TYPE_SPECIFIER  shift 36
+	TYPE_QUALIFIER  shift 37
+	COMMA  shift 38
+	L_BRACE  shift 39
+	R_BRACE  shift 40
+	L_PAREN  shift 41
+	R_PAREN  shift 42
+	ASTERISK  shift 43
+	.  error
+
+	struct_declarator_list  goto 44
+	other_declarator_list  goto 45
+	other_declarator  goto 46
+
+
+26: shift/reduce conflict (shift 20, reduce 12) on TYPE_SPECIFIER
+26: shift/reduce conflict (shift 21, reduce 12) on TYPE_QUALIFIER
+state 26
+	specifier_qualifier_list : type_specifier_a .  (12)
+	specifier_qualifier_list : type_specifier_a . specifier_qualifier_list  (13)
+
+	STRUCT  shift 18
+	UNION  shift 19
+	TYPE_SPECIFIER  shift 20
+	TYPE_QUALIFIER  shift 21
+	IDENTIFIER  reduce 12
+	SEMICOLON  reduce 12
+	CR  reduce 12
+	OTHERS  reduce 12
+	COMMENT  reduce 12
+	COMMA  reduce 12
+	L_BRACE  reduce 12
+	R_BRACE  reduce 12
+	L_PAREN  reduce 12
+	R_PAREN  reduce 12
+	ASTERISK  reduce 12
+
+	struct_or_union_specifier  goto 22
+	struct_or_union  goto 14
+	specifier_qualifier_list  goto 47
+	type_specifier_a  goto 26
+
+
+state 27
+	struct_or_union_specifier : struct_or_union IDENTIFIER L_BRACE struct_declaration_list . R_BRACE  (5)
+	struct_declaration_list : struct_declaration_list . struct_declaration  (10)
+
+	STRUCT  shift 18
+	UNION  shift 19
+	TYPE_SPECIFIER  shift 20
+	TYPE_QUALIFIER  shift 21
+	R_BRACE  shift 48
+	.  error
+
+	struct_or_union_specifier  goto 22
+	struct_or_union  goto 14
+	struct_declaration  goto 30
+	specifier_qualifier_list  goto 25
+	type_specifier_a  goto 26
+
+
+state 28
+	specifier_qualifier_list : TYPE_QUALIFIER specifier_qualifier_list .  (15)
+
+	.  reduce 15
+
+
+state 29
+	struct_or_union_specifier : struct_or_union L_BRACE struct_declaration_list R_BRACE .  (6)
+
+	.  reduce 6
+
+
+state 30
+	struct_declaration_list : struct_declaration_list struct_declaration .  (10)
+
+	.  reduce 10
+
+
+state 31
+	other_declarator : IDENTIFIER .  (21)
+
+	.  reduce 21
+
+
+state 32
+	other_declarator : SEMICOLON .  (24)
+
+	.  reduce 24
+
+
+state 33
+	other_declarator : CR .  (25)
+
+	.  reduce 25
+
+
+state 34
+	other_declarator : OTHERS .  (26)
+
+	.  reduce 26
+
+
+state 35
+	other_declarator : COMMENT .  (27)
+
+	.  reduce 27
+
+
+state 36
+	other_declarator : TYPE_SPECIFIER .  (28)
+
+	.  reduce 28
+
+
+state 37
+	other_declarator : TYPE_QUALIFIER .  (29)
+
+	.  reduce 29
+
+
+state 38
+	other_declarator : COMMA .  (30)
+
+	.  reduce 30
+
+
+state 39
+	other_declarator : L_BRACE .  (22)
+
+	.  reduce 22
+
+
+state 40
+	other_declarator : R_BRACE .  (23)
+
+	.  reduce 23
+
+
+state 41
+	other_declarator : L_PAREN .  (31)
+
+	.  reduce 31
+
+
+state 42
+	other_declarator : R_PAREN .  (32)
+
+	.  reduce 32
+
+
+state 43
+	other_declarator : ASTERISK .  (33)
+
+	.  reduce 33
+
+
+state 44
+	struct_declaration : specifier_qualifier_list struct_declarator_list . SEMICOLON  (11)
+
+	SEMICOLON  shift 49
+	.  error
+
+
+state 45
+	struct_declarator_list : other_declarator_list .  (18)
+
+	.  reduce 18
+
+
+46: shift/reduce conflict (shift 32, reduce 19) on SEMICOLON
+state 46
+	other_declarator_list : other_declarator .  (19)
+	other_declarator_list : other_declarator . other_declarator_list  (20)
+
+	IDENTIFIER  shift 31
+	SEMICOLON  shift 32
+	CR  shift 33
+	OTHERS  shift 34
+	COMMENT  shift 35
+	TYPE_SPECIFIER  shift 36
+	TYPE_QUALIFIER  shift 37
+	COMMA  shift 38
+	L_BRACE  shift 39
+	R_BRACE  shift 40
+	L_PAREN  shift 41
+	R_PAREN  shift 42
+	ASTERISK  shift 43
+
+	other_declarator_list  goto 50
+	other_declarator  goto 46
+
+
+state 47
+	specifier_qualifier_list : type_specifier_a specifier_qualifier_list .  (13)
+
+	.  reduce 13
+
+
+state 48
+	struct_or_union_specifier : struct_or_union IDENTIFIER L_BRACE struct_declaration_list R_BRACE .  (5)
+
+	.  reduce 5
+
+
+state 49
+	struct_declaration : specifier_qualifier_list struct_declarator_list SEMICOLON .  (11)
+
+	.  reduce 11
+
+
+state 50
+	other_declarator_list : other_declarator other_declarator_list .  (20)
+
+	.  reduce 20
+
+
+Rules never reduced:
+	other_declarator_list : other_declarator  (19)
+
+
+State 15 contains 1 shift/reduce conflict.
+State 21 contains 2 shift/reduce conflicts.
+State 26 contains 2 shift/reduce conflicts.
+State 46 contains 1 shift/reduce conflict.
+
+
+19 terminals, 13 nonterminals
+43 grammar rules, 51 states

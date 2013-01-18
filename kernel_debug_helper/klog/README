@@ -1,0 +1,25 @@
+Simple klog app - this can be used to gather data from anywhere in the
+kernel without needing to write any relay code (just put klog() and
+klog_printk() calls wherever you want).
+
+* Kernel Preparing:
+1. Apply klog.patch to kernel.
+1.5 cp include/klog.h to kernel's include/linux/
+2. Compile klog-mod.c into kernel, or as a module and insert into it.
+3. Enable kernel configuration CONFIG_KLOG in "make menuconfig -> kernel hacking" 
+4. Enable CONFIG_DEBUG_FS or CONFIG_RELAY is necessary.
+5. Boot kernel and mount debugfs to /mnt/relay by running automatically or by hand:
+
+#mount -t debugfs debugfs /mnt/relay
+
+* User program preparing:
+
+1. Cross compile klog.c and copy the binary to target root fs
+
+Then:
+
+1. Include <linux/klog.h>, log whatever data you want from the kernel or
+   modules using klog() and/or klog_printk().
+
+2. Run klog to take the log.
+

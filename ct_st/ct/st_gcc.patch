@@ -1,0 +1,471 @@
+diff --git a/gcc/c-lex.c b/gcc/c-lex.c
+index 7f4fdf4..17d2637 100644
+--- a/gcc/c-lex.c
++++ b/gcc/c-lex.c
+@@ -323,7 +323,7 @@ cb_undef (cpp_reader * ARG_UNUSED (pfile), source_location loc,
+ 
+ enum cpp_ttype
+ c_lex_with_flags (tree *value, location_t *loc, unsigned char *cpp_flags,
+-		  int lex_flags)
++		  int lex_flags, char **str_start, char **str_end)
+ {
+   static bool no_more_pch;
+   const cpp_token *tok;
+@@ -495,7 +495,10 @@ c_lex_with_flags (tree *value, location_t *loc, unsigned char *cpp_flags,
+     }
+ 
+   timevar_pop (TV_CPP);
+-
++  if (str_start != NULL && str_end != NULL) {
++	  *str_start = tok->str_start;
++	  *str_end = tok->str_end;
++  }
+   return type;
+ }
+ 
+diff --git a/gcc/c-parser.c b/gcc/c-parser.c
+index 59f75b0..edb2888 100644
+--- a/gcc/c-parser.c
++++ b/gcc/c-parser.c
+@@ -263,6 +263,7 @@ typedef struct c_token GTY (())
+   tree value;
+   /* The location at which this token was found.  */
+   location_t location;
++  char *str_start, *str_end;
+ } c_token;
+ 
+ /* A parser structure recording information about the state and
+@@ -300,6 +301,94 @@ typedef struct c_parser GTY(())
+ 
+ static GTY (()) c_parser *the_parser;
+ 
++#include "../libcpp/internal.h"
++
++struct st_buf_stack_t g_buf_stack = {
++	.cur = -1
++};
++
++void st_push_buf(struct st_buf_stack_t *buf_stack)
++{
++	char *tmp_c;
++	struct st_p_buf_t *p_buf;
++	/* tmp_c = (char *)malloc(BUF_STACK_BUF_SIZE); */
++	buf_stack->cur ++;
++	tmp_c = buf_stack->buf_array[buf_stack->cur].buf;
++	if (tmp_c == NULL) {
++		fprintf(stderr, "Error: no memory\n");
++		exit(1);
++	}
++	p_buf = &buf_stack->buf_array[buf_stack->cur];
++	/* p_buf->buf = tmp_c; */
++	p_buf->pos = tmp_c;
++}
++
++void st_pop_buf(struct st_buf_stack_t *buf_stack)
++{
++	extern FILE *g_st_f;
++
++	struct st_p_buf_t *p_buf;
++	if (buf_stack->cur <= -1) {
++		fprintf(stderr, "Error: buf should not be popped!\n");
++		return;
++	}
++	p_buf = &buf_stack->buf_array[buf_stack->cur];
++
++	p_buf->pos += sprintf(p_buf->pos, "\n");
++	//fprintf(stderr, "strlen: %d\n", strlen(p_buf->buf));
++	fwrite(p_buf->buf, strlen(p_buf->buf), 1, g_st_f);
++	//fprintf(stderr, "%s\n", p_buf->buf);
++/* free(p_buf->buf); */
++	p_buf->pos = NULL;
++	buf_stack->cur --;
++}
++
++/* print token to the buf on top of buf stack */
++void st_print_token(c_token *token, struct st_buf_stack_t *buf_stack)
++{
++	int len;
++	struct st_p_buf_t *p_buf;
++	len = token->str_end - token->str_start;
++	p_buf = &buf_stack->buf_array[buf_stack->cur];
++
++	if (p_buf->buf != NULL) {
++		int i;
++
++		/* pre-process */
++		switch (token->type) {
++		case CPP_CLOSE_BRACE:
++			/* '{' needs to delete one indent level */
++			p_buf->pos --;
++			break;
++		default:
++			break;
++		}
++
++		/* snprintf() will add a '\0' to the end, and it is counted
++		 * to len. So we have to set the actual lenth to len + 1 */
++	        snprintf(p_buf->pos, len + 1, "%s", token->str_start);
++		p_buf->pos += len;
++
++		/* post-process */
++		switch (token->type) {
++		case CPP_SEMICOLON:
++		case CPP_OPEN_BRACE:
++			p_buf->pos += sprintf(p_buf->pos, "\n");
++			for (i = 0; i < g_struct_depth; i++) {
++				p_buf->pos += sprintf(p_buf->pos, "\t");
++			}
++			break;
++		case CPP_CLOSE_BRACE:
++
++		default:
++			p_buf->pos += sprintf(p_buf->pos, " ");
++			break;
++		}
++		//p_buf->pos += len + 1;
++		/* fprintf(stderr, "%s\n", buf); */
++	}
++}
++
+ 
+ /* Read in and lex a single token, storing it in *TOKEN.  */
+ 
+@@ -310,7 +399,7 @@ c_lex_one_token (c_parser *parser, c_token *token)
+ 
+   token->type = c_lex_with_flags (&token->value, &token->location, NULL,
+ 				  (parser->lex_untranslated_string
+-				   ? C_LEX_STRING_NO_TRANSLATE : 0));
++				   ? C_LEX_STRING_NO_TRANSLATE : 0), &token->str_start, &token->str_end);
+   token->id_kind = C_ID_NONE;
+   token->keyword = RID_MAX;
+   token->pragma_kind = PRAGMA_NONE;
+@@ -411,11 +500,15 @@ c_lex_one_token (c_parser *parser, c_token *token)
+ static inline c_token *
+ c_parser_peek_token (c_parser *parser)
+ {
++	location_t loc;
++
+   if (parser->tokens_avail == 0)
+     {
+       c_lex_one_token (parser, &parser->tokens[0]);
+       parser->tokens_avail = 1;
+     }
++  loc = parser->tokens[0].location;
++
+   return &parser->tokens[0];
+ }
+ 
+@@ -623,6 +716,9 @@ c_parser_consume_token (c_parser *parser)
+   gcc_assert (parser->tokens[0].type != CPP_EOF);
+   gcc_assert (!parser->in_pragma || parser->tokens[0].type != CPP_PRAGMA_EOL);
+   gcc_assert (parser->error || parser->tokens[0].type != CPP_PRAGMA);
++  if (g_struct_depth > 0) {
++	  st_print_token(&parser->tokens[0], &g_buf_stack);
++  }
+   if (parser->tokens_avail == 2)
+     parser->tokens[0] = parser->tokens[1];
+   parser->tokens_avail--;
+@@ -1067,6 +1163,7 @@ static tree c_parser_objc_keywordexpr (c_parser *);
+ static void
+ c_parser_translation_unit (c_parser *parser)
+ {
++	fprintf(stderr, "enter c_parser_translation_unit\n");
+   if (c_parser_next_token_is (parser, CPP_EOF))
+     {
+       if (pedantic)
+@@ -1853,10 +1950,26 @@ static struct c_typespec
+ c_parser_struct_or_union_specifier (c_parser *parser)
+ {
+   struct c_typespec ret;
++  c_token *token, *tmp_token;
++  location_t loc;
++  char *tmp_c;
+   tree attrs;
+   tree ident = NULL_TREE;
+   enum tree_code code;
+-  switch (c_parser_peek_token (parser)->keyword)
++  /* extern cpp_reader *parse_in; */
++  if (g_struct_depth == 0)
++	  st_push_buf(&g_buf_stack);
++  g_struct_depth ++;
++
++  /* 
++   * fprintf(stderr, "struct enter: %d\n", g_struct_depth);
++   * fprintf(stderr, "buf: %s\n", parse_in->buffer->buf);
++   */
++  token = c_parser_peek_token (parser);
++  /* print_token(token); */
++  loc = token->location;
++
++  switch (token->keyword)
+     {
+     case RID_STRUCT:
+       code = RECORD_TYPE;
+@@ -1873,7 +1986,9 @@ c_parser_struct_or_union_specifier (c_parser *parser)
+   c_parser_set_source_position_from_token (c_parser_peek_token (parser));
+   if (c_parser_next_token_is (parser, CPP_NAME))
+     {
+-      ident = c_parser_peek_token (parser)->value;
++	    tmp_token = c_parser_peek_token (parser);
++      ident = tmp_token->value;
++      /* print_token(tmp_token); */
+       c_parser_consume_token (parser);
+     }
+   if (c_parser_next_token_is (parser, CPP_OPEN_BRACE))
+@@ -1973,6 +2088,13 @@ c_parser_struct_or_union_specifier (c_parser *parser)
+       ret.spec = finish_struct (type, nreverse (contents),
+ 				chainon (attrs, postfix_attrs));
+       ret.kind = ctsk_tagdef;
++
++      g_struct_depth --;
++      if (g_struct_depth == 0)
++	      st_pop_buf(&g_buf_stack);
++
++      /* fprintf(stderr, "struct exit 1: %d\n", g_struct_depth); */
++      
+       return ret;
+     }
+   else if (!ident)
+@@ -1980,9 +2102,17 @@ c_parser_struct_or_union_specifier (c_parser *parser)
+       c_parser_error (parser, "expected %<{%>");
+       ret.spec = error_mark_node;
+       ret.kind = ctsk_tagref;
++      g_struct_depth --;
++      if (g_struct_depth == 0)
++	      st_pop_buf(&g_buf_stack);
++      /* fprintf(stderr, "struct exit 2: %d\n", g_struct_depth); */
+       return ret;
+     }
+   ret = parser_xref_tag (code, ident);
++  g_struct_depth --;
++  if (g_struct_depth == 0)
++	  st_pop_buf(&g_buf_stack);
++  /* fprintf(stderr, "struct exit 3: %d\n", g_struct_depth); */
+   return ret;
+ }
+ 
+@@ -2025,6 +2155,7 @@ c_parser_struct_declaration (c_parser *parser)
+   tree all_prefix_attrs;
+   tree decls;
+   location_t decl_loc;
++  /* fprintf(stderr, "enter parser_declaration\n"); */
+   if (c_parser_next_token_is_keyword (parser, RID_EXTENSION))
+     {
+       int ext;
+@@ -2033,16 +2164,20 @@ c_parser_struct_declaration (c_parser *parser)
+       c_parser_consume_token (parser);
+       decl = c_parser_struct_declaration (parser);
+       restore_extension_diagnostics (ext);
++      /* fprintf(stderr, "exit declaration 1\n"); */
+       return decl;
+     }
+   specs = build_null_declspecs ();
+   decl_loc = c_parser_peek_token (parser)->location;
+   c_parser_declspecs (parser, specs, false, true, true);
+-  if (parser->error)
+-    return NULL_TREE;
++  if (parser->error) {
++	  /* fprintf(stderr, "exit declaration 2\n"); */
++      return NULL_TREE;
++  }
+   if (!specs->declspecs_seen_p)
+     {
+       c_parser_error (parser, "expected specifier-qualifier-list");
++      /* fprintf(stderr, "exit declaration 3\n"); */
+       return NULL_TREE;
+     }
+   finish_declspecs (specs);
+@@ -2068,6 +2203,7 @@ c_parser_struct_declaration (c_parser *parser)
+ 	  if (ret)
+ 	    decl_attributes (&ret, attrs, 0);
+ 	}
++      /* fprintf(stderr, "exit declaration 4\n"); */
+       return ret;
+     }
+   pending_xref_error ();
+@@ -2138,6 +2274,9 @@ c_parser_struct_declaration (c_parser *parser)
+ 	  break;
+ 	}
+     }
++
++  /* fprintf(stderr, "exit declaration 5\n"); */
++
+   return decls;
+ }
+ 
+diff --git a/gcc/c-pragma.h b/gcc/c-pragma.h
+index 9896f43..73db27b 100644
+--- a/gcc/c-pragma.h
++++ b/gcc/c-pragma.h
+@@ -122,6 +122,6 @@ extern enum cpp_ttype pragma_lex (tree *);
+    convenient location to declare this function for c-lex, after
+    having enum cpp_ttype declared.  */
+ extern enum cpp_ttype c_lex_with_flags (tree *, location_t *, unsigned char *,
+-					int);
++					int, char **, char **);
+ 
+ #endif /* GCC_C_PRAGMA_H */
+diff --git a/gcc/cp/parser.c b/gcc/cp/parser.c
+index b823c12..61f2e8d 100644
+--- a/gcc/cp/parser.c
++++ b/gcc/cp/parser.c
+@@ -411,7 +411,7 @@ cp_lexer_get_preprocessor_token (cp_lexer *lexer, cp_token *token)
+    /* Get a new token from the preprocessor.  */
+   token->type
+     = c_lex_with_flags (&token->u.value, &token->location, &token->flags,
+-			lexer == NULL ? 0 : C_LEX_RAW_STRINGS);
++			lexer == NULL ? 0 : C_LEX_RAW_STRINGS, NULL, NULL);
+   token->input_file_stack_index = input_file_stack_tick;
+   token->keyword = RID_MAX;
+   token->pragma_kind = PRAGMA_NONE;
+diff --git a/gcc/toplev.c b/gcc/toplev.c
+index 19ee8aa..b5c3ff1 100644
+--- a/gcc/toplev.c
++++ b/gcc/toplev.c
+@@ -2247,6 +2247,35 @@ do_compile (void)
+   timevar_print (stderr);
+ }
+ 
++FILE *g_st_f = NULL;
++char st_file[256] = "--wonthappen--";
++
++FILE *st_open(char *filename)
++{
++	int errval;
++	struct stat st_stat;
++
++	if (filename && g_st_f == NULL) {
++		strcpy(st_file, filename);
++		strcat(st_file, ".st");
++	}
++	/*
++	 * Decide whether to open write or append. There appears to be a weird
++	 * bug that decides to open the file twice, overwriting all the cdepn
++	 * information put there before
++	 */
++	//errval = stat(st_file, &st_stat);
++
++	g_st_f = fopen(st_file, "w");
++	return g_st_f;
++}
++
++void st_close(void) {
++	if (g_st_f)
++		fclose(g_st_f);
++	g_st_f = NULL;
++}
++
+ /* Entry point of cc1, cc1plus, jc1, f771, etc.
+    Exit code is FATAL_EXIT_CODE if can't open files or if there were
+    any errors, or SUCCESS_EXIT_CODE if compilation succeeded.
+@@ -2268,8 +2297,11 @@ toplev_main (unsigned int argc, const char **argv)
+   init_local_tick ();
+ 
+   /* Exit early if we can (e.g. -help).  */
+-  if (!exit_after_options)
+-    do_compile ();
++  if (!exit_after_options) {
++	  st_open(main_input_filename);
++	  do_compile ();
++	  st_close();
++  }
+ 
+   if (errorcount || sorrycount)
+     return (FATAL_EXIT_CODE);
+diff --git a/libcpp/include/cpplib.h b/libcpp/include/cpplib.h
+index e205be7..cf7d2a4 100644
+--- a/libcpp/include/cpplib.h
++++ b/libcpp/include/cpplib.h
+@@ -216,6 +216,7 @@ struct cpp_token GTY(())
+     /* Caller-supplied identifier for a CPP_PRAGMA.  */
+     unsigned int GTY ((tag ("CPP_TOKEN_FLD_PRAGMA"))) pragma;
+   } GTY ((desc ("cpp_token_val_index (&%1)"))) val;
++  char *str_start, *str_end;
+ };
+ 
+ /* Say which field is in use.  */
+diff --git a/libcpp/internal.h b/libcpp/internal.h
+index 6110e5c..8e4f999 100644
+--- a/libcpp/internal.h
++++ b/libcpp/internal.h
+@@ -698,5 +698,18 @@ ufputs (const unsigned char *s, FILE *f)
+ {
+   return fputs ((const char *)s, f);
+ }
++extern int g_struct_depth;
++
++#define BUF_STACK_SIZE 4
++#define BUF_STACK_BUF_SIZE (8192*16*16)
++/* buf with position */
++struct st_p_buf_t {
++	char buf[BUF_STACK_BUF_SIZE];
++	char *pos; /* buf's position to write to */
++};
++struct st_buf_stack_t {
++	struct st_p_buf_t buf_array[BUF_STACK_SIZE];
++	int cur;
++};
+ 
+ #endif /* ! LIBCPP_INTERNAL_H */
+diff --git a/libcpp/lex.c b/libcpp/lex.c
+index ef59f90..d930e66 100644
+--- a/libcpp/lex.c
++++ b/libcpp/lex.c
+@@ -816,7 +816,6 @@ _cpp_lex_token (cpp_reader *pfile)
+       if (!pfile->state.skipping || result->type == CPP_EOF)
+ 	break;
+     }
+-
+   return result;
+ }
+ 
+@@ -883,6 +882,8 @@ _cpp_get_fresh_line (cpp_reader *pfile)
+    When meeting a newline, returns CPP_EOF if parsing a directive,
+    otherwise returns to the start of the token buffer if permissible.
+    Returns the location of the lexed token.  */
++int g_struct_depth = 0;
++
+ cpp_token *
+ _cpp_lex_direct (cpp_reader *pfile)
+ {
+@@ -890,7 +891,8 @@ _cpp_lex_direct (cpp_reader *pfile)
+   cpp_buffer *buffer;
+   const unsigned char *comment_start;
+   cpp_token *result = pfile->cur_token++;
+-
++  unsigned char *pos1, *pos2;
++  char my_buf[100];
+  fresh_line:
+   result->flags = 0;
+   buffer = pfile->buffer;
+@@ -936,6 +938,8 @@ _cpp_lex_direct (cpp_reader *pfile)
+       _cpp_process_line_notes (pfile, false);
+       result->src_loc = pfile->line_table->highest_line;
+     }
++  pos1 = buffer->cur;
++  result->str_start = buffer->cur;
+   c = *buffer->cur++;
+ 
+   LINEMAP_POSITION_FOR_COLUMN (result->src_loc, pfile->line_table,
+@@ -1227,7 +1231,20 @@ _cpp_lex_direct (cpp_reader *pfile)
+       create_literal (pfile, result, buffer->cur - 1, 1, CPP_OTHER);
+       break;
+     }
+-
++  pos2 = buffer->cur;
++  result->str_end = buffer->cur;
++  if (g_struct_depth > 0) {
++	  /* 
++           * memcpy(my_buf, pos1, pos2-pos1);
++	   * if (result->type == CPP_SEMICOLON) {
++	   * 	  my_buf[pos2-pos1] = '\n';
++	   * } else {
++	   * 	  my_buf[pos2-pos1] = ' ';
++	   * }
++	   * my_buf[pos2 - pos1 + 1] = '\0';
++	   * fprintf(stderr, "%s", my_buf);
++           */
++  }
+   return result;
+ }
+ 

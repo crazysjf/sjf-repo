@@ -1,0 +1,245 @@
+---
+ mm/Makefile            |    2 	1 +	1 -	0 !
+ mm/call_chain.S        |   66 	66 +	0 -	0 !
+ mm/page_alloc_acct_e.c |  150 	150 +	0 -	0 !
+ 3 files changed, 217 insertions(+), 1 deletion(-)
+
+Index: b/mm/call_chain.S
+===================================================================
+--- /dev/null
++++ b/mm/call_chain.S
+@@ -0,0 +1,66 @@
++#include <linux/linkage.h>
++#include <asm/assembler.h>
++		.text
++
++@ fp is 0 or stack frame
++#define depth	r2
++#define index	r3
++#define frame	r4
++#define sv_fp	r5
++#define sv_lr	r6
++#define mask	r7
++#define offset	r8
++
++@ int __call_chain(int max_depth, void* call_chain[])
++@ Get the call chain to current function.
++@ @max_depth: max depth to backtrace.
++@ @call_chain[]: an array to store the backtraced addr. It should be big
++@		 enough to hold max_depth number of pointers.
++@ Ret val: Actually backtraced depth.
++
++ENTRY(__call_chain)
++
++#if !defined(CONFIG_FRAME_POINTER)
++		mov	pc, lr
++#else
++		stmfd	sp!, {r4 - r8, lr}	@ Save an extra register so we have a location...
++		movs	frame, fp		@ if frame pointer is zero
++		beq	no_frame		@ we have no stack frames
++		mov	mask, #0		@ mask for 32-bit
++		mov	depth, #0
++		mov	index, #0
++/*
++ * Stack frame layout:
++ *             optionally saved caller registers (r4 - r10)
++ *             saved fp
++ *             saved sp
++ *             saved lr
++ *    frame => saved pc
++ *             optionally saved arguments (r0 - r3)
++ * saved sp => <next word>
++ *
++ * Functions start with the following code sequence:
++ *                  mov   ip, sp
++ *                  stmfd sp!, {r0 - r3} (optional)
++ * corrected pc =>  stmfd sp!, {..., fp, ip, lr, pc}
++ */
++for_each_frame:	cmp 	depth, r0
++		beq	no_frame
++
++		ldr	sv_fp, [frame, #-12]	@ get saved fp
++
++		teq	sv_fp, #0		@ zero saved fp means
++		beq	no_frame		@ no further frames
++
++		ldr	sv_lr, [frame, #-4]	@ get saved lr
++		str	sv_lr, [r1, depth, lsl #2] @ save pc to the array
++		add	depth, depth, #1
++		cmp	sv_fp, frame		@ next frame must be
++		mov	frame, sv_fp		@ above the current frame
++		bhi	for_each_frame
++
++
++no_frame:	mov	r0, depth
++		ldmfd	sp!, {r4 - r8, pc}
++
++#endif
+Index: b/mm/page_alloc_acct_e.c
+===================================================================
+--- /dev/null
++++ b/mm/page_alloc_acct_e.c
+@@ -0,0 +1,150 @@
++#include	<linux/seq_file.h>
++#include	<linux/kallsyms.h>
++#include 	<linux/kernel.h>
++#include 	<linux/spinlock.h>
++
++#define MAX_CALL_CHAIN_LEN 10
++#define MAX_CALL_CHAIN_NU  4096
++#define MAX_ALLOC_TRACK    8192
++
++#define CALL_CHAIN_ALLOC        0
++#define CALL_CHAIN_UNKNOWN_FREE 1
++
++struct addr_size_t {
++	void *addr;
++	unsigned long size;
++	struct list_head list;
++};
++
++struct call_chain_t {
++	void *call_chain[MAX_CALL_CHAIN_LEN];
++	struct list_head list;
++	unsigned long type;
++};
++
++struct call_chain_heap_t {
++	struct call_chain_t call_chain_array[MAX_CALL_CHAIN_NU];
++	struct addr_size_t addr_size_array[MAX_ALLOC_TRACK];
++	int lost_call_chain, lost_addr_size, unknown_free;
++};
++
++static struct call_chain_heap_t call_chain_heap;
++
++static void *tmp_call_chain[MAX_CALL_CHAIN_LEN];
++
++static spinlock_t kma_lock = SPIN_LOCK_UNLOCKED;
++
++/**
++ * kma_hash - Use a simple hash algrithm to find a position in a array for a key.
++ * @key: Key to hash.
++ * @size: Size of the array in which the position will be find.
++  * @is_OK: A function to judge whether index in the array is OK.
++ *              Pass the index using the first parameter.
++ *              Return non-0 for OK, and 0 for bad.
++ * @Ret: If succeded, return the index, which should be >= 0.
++ *       If failed, return -1.
++ */
++static int kma_hash(unsigned long key, unsigned long size, void* private, int (*is_OK)(int index, void* private))
++{
++	int idx, i;
++
++	idx = (key / size) % size;
++
++	for (i = 0; i < size; i++) {
++		if (is_OK(idx, private))
++			return idx;
++		idx = (idx++) % size;
++	}
++
++	return -1;
++}
++
++/**
++ * is_OK_in_call_chain_array - Judge whether a position at index in call_chain_array is available.
++ *
++ * @idx: the index.
++ * @private: call chain depth in tmp_call_chain.
++ */
++static int is_OK_in_call_chain_array(int idx, void *private)
++{
++	int i;
++	int call_chain_depth = (int) private;
++	if (call_chain_heap.call_chain_array[idx].call_chain[0] == NULL)
++		return 1;
++
++	for (i = 0; i < call_chain_depth; i++) {
++		if (call_chain_heap.call_chain_array[idx].call_chain[i] != tmp_call_chain[i])
++			return 0;
++	}
++	return 1;
++}
++
++static int is_OK_in_addr_size_array(int idx, void *private)
++{
++	//void *addr = idx;
++
++	if (call_chain_heap.addr_size_array[idx] == private ||
++	    call_chain_heap.addr_size_array[idx] == NULL) {
++		return 1;
++	}
++	return 0;
++}
++
++static void add_to_call_chain_heap(const void *addr, int size, void *tmp_call_chain[])
++{
++	int a_idx, c_idx, call_chain_depth, i;
++	call_chain_depth = __call_chain(MAX_CALL_CHAIN_LEN, tmp_call_chain);
++	c_idx = kma_hash(tmp_call_chain[call_chain_depth - 1] >> 4,
++		       MAX_CALL_CHAIN_NU,
++		       call_chain_depth,
++		       is_OK_in_call_chain_array);
++	if (c_idx == -1) {
++		call_chain_heap.lost_call_chain ++;
++		return;
++	}
++
++	/* If it is empty, fill it with tmp_call_chain. */
++	if (call_chain_heap.call_chain_array[c_idx].call_chain[0] != NULL) {
++		for (i = 0; i < call_chain_depth; i++) {
++			call_chain_heap.call_chain_array[c_idx].call_chain[i] = tmp_call_chain[i];
++		}
++	}
++	call_chain_heap.call_chain_array[c_idx].type = CALL_CHAIN_ALLOC;
++
++	a_idx = kma_hash(addr >> 4,
++			 MAX_ALLOC_TRACK,
++			 addr,
++			 is_OK_in_addr_size_array);
++	if (a_idx == -1) {
++		call_chain_heap.lost_addr_size ++;
++		return;
++	}
++
++	call_chain_heap.addr_size_array[a_idx].addr = addr;
++	call_chain_heap.addr_size_array[a_idx].size = size;
++
++	/* add list insertion operation here. */
++}
++
++/**
++ * pages_account_e - Record a memory alloc or free operation.
++ * @addr: Memory's start addr.
++ * @size: Memory's size in byte.
++ * @req: Operation type.
++ *   >0:   Allocate
++ *   else: Free
++ */
++void pages_account_e(const void *addr, int size, int req)
++{
++	unsigned long flags;
++
++
++
++	spin_lock_irqsave(&kma_lock, flags);
++	if (req >= 0) { /* Alloc */
++		idx = kma_hash(,
++	} else { /* Free */
++	}
++
++	spin_unlock_irqrestore(&kma_lock, flags);
++}
+Index: b/mm/Makefile
+===================================================================
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@ -11,7 +11,7 @@ obj-y			:= bootmem.o filemap.o mempool.o
+ 			   page_alloc.o page-writeback.o pdflush.o \
+ 			   readahead.o swap.o truncate.o vmscan.o \
+ 			   prio_tree.o util.o mmzone.o vmstat.o backing-dev.o \
+-			   page_isolation.o mem_notify.o $(mmu-y)
++			   page_isolation.o mem_notify.o $(mmu-y) call_chain.o page_alloc_acct_e.o
+ 
+ ifeq ($(CONFIG_MMU)$(CONFIG_BLOCK),yy)
+ obj-y			+= bounce.o

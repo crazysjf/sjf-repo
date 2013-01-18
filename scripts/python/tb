@@ -1,0 +1,9 @@
+#!/usr/bin/python
+import pexpect
+board_ip = "10.1.137.100"
+child = pexpect.spawn ('telnet ' + board_ip)
+child.expect ('login: ')
+child.sendline ('root')
+child.interact()
+#child.kill(1)
+#child.expect(pexpect.EOF)
