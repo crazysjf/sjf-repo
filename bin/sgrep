@@ -1,0 +1,4 @@
+#!/bin/bash
+# grep from any file, excluding .repo and .git directoris.
+set -x
+find ./ -name '.repo' -prune -o -name '.git' -prune -o -print | xargs grep "$@"
