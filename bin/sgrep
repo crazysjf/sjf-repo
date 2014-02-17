@@ -1,3 +1,2 @@
 #!/bin/bash
-# grep from any file, excluding .repo and .git directoris.
-find ./ -name '.repo' -prune -o -name '.git' -prune -o -print | xargs -I '{}' grep "$@" '{}'
+find . -name .repo -prune -o -name .git -prune -o  -type f -print0 | xargs -0 grep --color -n "$@"
