@@ -1,2 +1,2 @@
 #!/bin/bash
-find ./ -name '.repo' -prune -o -name '.git' -prune -o -name '*.java' | xargs grep "$@"
+find ./ -name '.repo' -prune -o -name '.git' -prune -o -name '*.java' |  xargs -I '{}' grep "$@" '{}'
