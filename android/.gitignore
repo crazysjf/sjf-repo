@@ -1,5 +1,10 @@
 .classpath
-*.class
+.project
+*.classi
+*.o
+*.so
+obj/
+libs/
 .svn/
 bin/
 gen/
