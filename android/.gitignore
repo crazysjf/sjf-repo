@@ -1,6 +1,7 @@
 .classpath
 .project
-*.classi
+.cproject
+*.class
 *.o
 *.so
 obj/
