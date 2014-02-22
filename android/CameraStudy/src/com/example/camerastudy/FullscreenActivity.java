@@ -1,14 +1,21 @@
 package com.example.camerastudy;
 
-import com.example.camerastudy.util.SystemUiHider;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.example.camerastudy.util.SystemUiHider;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -44,7 +51,16 @@ public class FullscreenActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-
+	final static int REQUEST_IMAGE_CAPTURE = 1;
+	ImageView mImageView;
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+	        Bundle extras = data.getExtras();
+	        Bitmap imageBitmap = (Bitmap) extras.get("data");
+	        mImageView.setImageBitmap(imageBitmap);
+	    }
+	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,11 +68,22 @@ public class FullscreenActivity extends Activity {
 		setContentView(R.layout.activity_fullscreen);
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-		final View contentView = findViewById(R.id.fullscreen_content);
-
+		final Button button = (Button)findViewById(R.id.dummy_button);
+		mImageView = (ImageView)findViewById(R.id.imageView);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+			        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+			    }
+				Toast.makeText(FullscreenActivity.this, "Something to show.", Toast.LENGTH_SHORT).show();
+			}
+		});
+		
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
-		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
+		mSystemUiHider = SystemUiHider.getInstance(this, mImageView,
 				HIDER_FLAGS);
 		mSystemUiHider.setup();
 		mSystemUiHider
@@ -100,7 +127,7 @@ public class FullscreenActivity extends Activity {
 				});
 
 		// Set up the user interaction to manually show or hide the system UI.
-		contentView.setOnClickListener(new View.OnClickListener() {
+		mImageView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				if (TOGGLE_ON_CLICK) {
