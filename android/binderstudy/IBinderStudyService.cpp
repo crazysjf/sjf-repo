@@ -27,7 +27,7 @@ public:
 	}
 };
 
-IMPLEMENT_META_INTERFACE(BinderStudyService, "android.hardware.IBinderStudyService");
+IMPLEMENT_META_INTERFACE(BinderStudyService, "android.hardware.BinderStudyService");
 
 status_t BnBinderStudyService::onTransact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {

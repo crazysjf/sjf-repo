@@ -24,4 +24,14 @@ const char *BinderStudyService::binderTest(int i)
 	return (const char*)s;
 }
 
+void BinderStudyService::onFirstRef()
+{
+    BnBinderStudyService::onFirstRef();
+}
+
+status_t BinderStudyService::onTransact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
+{
+    return BnBinderStudyService::onTransact(code, data, reply, flags);
+}
+
 }

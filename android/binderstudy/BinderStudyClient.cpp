@@ -12,8 +12,12 @@ namespace android {
 
 BinderStudyClient::BinderStudyClient() {
 	sp<IServiceManager> sm = defaultServiceManager();
-	sp<IBinder> binder = sm->getService(String16("study.binder"));
+	printf("defaultService got: %p\n", sm.get());
+
+	sp<IBinder> binder = sm->getService(String16("media.sjf"));
+	printf("binder for study.binder got: %p\n", binder.get());
 	mBinderStudyService = interface_cast<IBinderStudyService>(binder);
+	printf("mBinderStudyService: %p\n", mBinderStudyService.get());
 }
 
 BinderStudyClient::~BinderStudyClient() {
