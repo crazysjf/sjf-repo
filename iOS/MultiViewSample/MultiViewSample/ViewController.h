@@ -11,11 +11,9 @@
 #import "YellowViewController.h"
 
 @interface ViewController : UIViewController
-@property (strong, nonatomic) IBOutlet UILabel *display;
 @property (strong, nonatomic) BlueViewController *blueViewController;
 @property (strong, nonatomic) YellowViewController *yellowViewController;
 
--(IBAction) click1;
 -(IBAction)switchViews:(id)sender;
 @end
 

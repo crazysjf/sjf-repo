@@ -14,17 +14,12 @@
 
 @implementation ViewController
 
-@synthesize display, blueViewController, yellowViewController;
+@synthesize blueViewController, yellowViewController;
 
--(IBAction) click1 {
-    static int i = 0;
-    
-    display.text =     [NSString stringWithFormat:@"Text is %i", i++];
-}
 
 -(IBAction)switchViews:(id)sender {
     [UIView beginAnimations:@"View Flip" context:NULL];
-    [UIView setAnimationDuration:2.1];
+    [UIView setAnimationDuration:0.4];
     [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
                            forView:self.view cache:YES];

@@ -9,6 +9,12 @@
 #import "BlueViewController.h"
 
 @implementation BlueViewController
+@synthesize display;
+
+-(IBAction) click1 {
+    static int i = 0;
+    display.text = [NSString stringWithFormat:@"Text is %i", i++];
+}
 
 -(IBAction)blueButtonPressed {
     UIAlertView *alert =[[UIAlertView alloc]

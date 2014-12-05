@@ -42,8 +42,8 @@
 		148D82511A30208E00687AC6 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewController.m; path = MultiViewSample/ViewController.m; sourceTree = SOURCE_ROOT; };
 		148D82521A30208E00687AC6 /* YellowViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YellowViewController.h; path = MultiViewSample/YellowViewController.h; sourceTree = SOURCE_ROOT; };
 		148D82531A30208E00687AC6 /* YellowViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YellowViewController.m; path = MultiViewSample/YellowViewController.m; sourceTree = SOURCE_ROOT; };
-		148D825D1A30212300687AC6 /* MultiViewSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = MultiViewSample.app; path = "/Volumes/My Data2/src/MultiViewSample/build/Debug-iphoneos/MultiViewSample.app"; sourceTree = "<absolute>"; };
-		148D825E1A30255E00687AC6 /* MultiViewSampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = MultiViewSampleTests.xctest; path = "/Volumes/My Data2/src/MultiViewSample/build/Debug-iphoneos/MultiViewSampleTests.xctest"; sourceTree = "<absolute>"; };
+		148D825F1A302A2B00687AC6 /* MultiViewSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MultiViewSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		148D82601A302A2B00687AC6 /* MultiViewSampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultiViewSampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,20 +68,18 @@
 			isa = PBXGroup;
 			children = (
 				146BAF0B1A28151900434B41 /* MultiViewSample */,
+				148D82621A30301B00687AC6 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 		146BAF0B1A28151900434B41 /* MultiViewSample */ = {
 			isa = PBXGroup;
 			children = (
+				148D82631A314FEC00687AC6 /* Supporting Files */,
 				148D82441A30208E00687AC6 /* AppDelegate.h */,
 				148D82451A30208E00687AC6 /* AppDelegate.m */,
-				148D82461A30208E00687AC6 /* Base.lproj */,
 				148D824B1A30208E00687AC6 /* BlueViewController.h */,
 				148D824C1A30208E00687AC6 /* BlueViewController.m */,
-				148D824D1A30208E00687AC6 /* Images.xcassets */,
-				148D824E1A30208E00687AC6 /* Info.plist */,
-				148D824F1A30208E00687AC6 /* main.m */,
 				148D82501A30208E00687AC6 /* ViewController.h */,
 				148D82511A30208E00687AC6 /* ViewController.m */,
 				148D82521A30208E00687AC6 /* YellowViewController.h */,
@@ -90,15 +88,26 @@
 			path = MultiViewSample;
 			sourceTree = "<group>";
 		};
-		148D82461A30208E00687AC6 /* Base.lproj */ = {
+		148D82621A30301B00687AC6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				148D82601A302A2B00687AC6 /* MultiViewSampleTests.xctest */,
+				148D825F1A302A2B00687AC6 /* MultiViewSample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		148D82631A314FEC00687AC6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
 				148D82471A30208E00687AC6 /* LaunchScreen.xib */,
 				148D82491A30208E00687AC6 /* Main.storyboard */,
+				148D824D1A30208E00687AC6 /* Images.xcassets */,
+				148D824E1A30208E00687AC6 /* Info.plist */,
+				148D824F1A30208E00687AC6 /* main.m */,
 			);
-			name = Base.lproj;
-			path = MultiViewSample/Base.lproj;
-			sourceTree = SOURCE_ROOT;
+			name = "Supporting Files";
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -117,7 +126,7 @@
 			);
 			name = MultiViewSample;
 			productName = MultiViewSample;
-			productReference = 148D825D1A30212300687AC6 /* MultiViewSample.app */;
+			productReference = 148D825F1A302A2B00687AC6 /* MultiViewSample.app */;
 			productType = "com.apple.product-type.application";
 		};
 		146BAF211A28151900434B41 /* MultiViewSampleTests */ = {
@@ -135,7 +144,7 @@
 			);
 			name = MultiViewSampleTests;
 			productName = MultiViewSampleTests;
-			productReference = 148D825E1A30255E00687AC6 /* MultiViewSampleTests.xctest */;
+			productReference = 148D82601A302A2B00687AC6 /* MultiViewSampleTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -233,6 +242,7 @@
 				148D82481A30208E00687AC6 /* Base */,
 			);
 			name = LaunchScreen.xib;
+			path = Base.lproj;
 			sourceTree = "<group>";
 		};
 		148D82491A30208E00687AC6 /* Main.storyboard */ = {
@@ -241,6 +251,7 @@
 				148D824A1A30208E00687AC6 /* Base */,
 			);
 			name = Main.storyboard;
+			path = Base.lproj;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

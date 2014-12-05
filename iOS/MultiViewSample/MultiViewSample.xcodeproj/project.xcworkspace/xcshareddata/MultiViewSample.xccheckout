@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>CE287A3C-F3A9-4716-AED0-AF63F16A7703</string>
+	<key>IDESourceControlProjectName</key>
+	<string>MultiViewSample</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>58D99B4D3DFE885C7F1C8BCD3FE45257442F6826</key>
+		<string>https://github.com/crazysjf/sjf-repo.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>iOS/MultiViewSample/MultiViewSample.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>58D99B4D3DFE885C7F1C8BCD3FE45257442F6826</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/crazysjf/sjf-repo.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>58D99B4D3DFE885C7F1C8BCD3FE45257442F6826</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>58D99B4D3DFE885C7F1C8BCD3FE45257442F6826</string>
+			<key>IDESourceControlWCCName</key>
+			<string>sjf-repo</string>
+		</dict>
+	</array>
+</dict>
+</plist>

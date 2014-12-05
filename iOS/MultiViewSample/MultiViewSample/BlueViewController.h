@@ -10,6 +10,9 @@
 
 @interface BlueViewController : UIViewController
 
+@property (strong, nonatomic) IBOutlet UILabel *display;
+
 -(IBAction)blueButtonPressed;
+-(IBAction) click1;
 
 @end
