@@ -14,7 +14,7 @@
 
 @implementation ViewController
 
-@synthesize blueViewController, yellowViewController;
+@synthesize blueViewController, yellowViewController, navigationController;
 
 
 -(IBAction)switchViews:(id)sender {
@@ -42,12 +42,18 @@
     [UIView commitAnimations];
 }
 
+- (IBAction)switch2NavigationController:(id)sender
+{
+    // This will switch the whole app's root view controller
+    [[UIApplication sharedApplication] delegate].window.rootViewController = self.navigationController;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.blueViewController = [self.storyboard instantiateViewControllerWithIdentifier: @"Blue"];
     [self.view insertSubview:self.blueViewController.view atIndex:0];
-    
+    self.navigationController = [self.storyboard instantiateViewControllerWithIdentifier:@"Fonts"];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -13,7 +13,9 @@
 @interface ViewController : UIViewController
 @property (strong, nonatomic) BlueViewController *blueViewController;
 @property (strong, nonatomic) YellowViewController *yellowViewController;
+@property (strong, nonatomic) UINavigationController *navigationController;
 
 -(IBAction)switchViews:(id)sender;
+-(IBAction)switch2NavigationController:(id)sender;
 @end
 

@@ -16,6 +16,9 @@
 		148D825A1A30208E00687AC6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 148D824F1A30208E00687AC6 /* main.m */; };
 		148D825B1A30208E00687AC6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 148D82511A30208E00687AC6 /* ViewController.m */; };
 		148D825C1A30208E00687AC6 /* YellowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 148D82531A30208E00687AC6 /* YellowViewController.m */; };
+		148D82671A31B25800687AC6 /* FontsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 148D82661A31B25800687AC6 /* FontsViewController.m */; };
+		148D826A1A31B77100687AC6 /* FavoritesList.m in Sources */ = {isa = PBXBuildFile; fileRef = 148D82691A31B77100687AC6 /* FavoritesList.m */; };
+		148D826D1A31CF8B00687AC6 /* FontListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 148D826C1A31CF8B00687AC6 /* FontListViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,12 @@
 		148D82531A30208E00687AC6 /* YellowViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YellowViewController.m; path = MultiViewSample/YellowViewController.m; sourceTree = SOURCE_ROOT; };
 		148D825F1A302A2B00687AC6 /* MultiViewSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MultiViewSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		148D82601A302A2B00687AC6 /* MultiViewSampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultiViewSampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		148D82651A31B25800687AC6 /* FontsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontsViewController.h; sourceTree = "<group>"; };
+		148D82661A31B25800687AC6 /* FontsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontsViewController.m; sourceTree = "<group>"; };
+		148D82681A31B77100687AC6 /* FavoritesList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FavoritesList.h; sourceTree = "<group>"; };
+		148D82691A31B77100687AC6 /* FavoritesList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FavoritesList.m; sourceTree = "<group>"; };
+		148D826B1A31CF8B00687AC6 /* FontListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontListViewController.h; sourceTree = "<group>"; };
+		148D826C1A31CF8B00687AC6 /* FontListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontListViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +84,7 @@
 		146BAF0B1A28151900434B41 /* MultiViewSample */ = {
 			isa = PBXGroup;
 			children = (
+				148D82641A31B20E00687AC6 /* Fonts */,
 				148D82631A314FEC00687AC6 /* Supporting Files */,
 				148D82441A30208E00687AC6 /* AppDelegate.h */,
 				148D82451A30208E00687AC6 /* AppDelegate.m */,
@@ -107,6 +117,19 @@
 				148D824F1A30208E00687AC6 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		148D82641A31B20E00687AC6 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				148D82651A31B25800687AC6 /* FontsViewController.h */,
+				148D82661A31B25800687AC6 /* FontsViewController.m */,
+				148D82681A31B77100687AC6 /* FavoritesList.h */,
+				148D82691A31B77100687AC6 /* FavoritesList.m */,
+				148D826B1A31CF8B00687AC6 /* FontListViewController.h */,
+				148D826C1A31CF8B00687AC6 /* FontListViewController.m */,
+			);
+			name = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -212,7 +235,10 @@
 			files = (
 				148D825B1A30208E00687AC6 /* ViewController.m in Sources */,
 				148D82541A30208E00687AC6 /* AppDelegate.m in Sources */,
+				148D826A1A31B77100687AC6 /* FavoritesList.m in Sources */,
 				148D82571A30208E00687AC6 /* BlueViewController.m in Sources */,
+				148D82671A31B25800687AC6 /* FontsViewController.m in Sources */,
+				148D826D1A31CF8B00687AC6 /* FontListViewController.m in Sources */,
 				148D825C1A30208E00687AC6 /* YellowViewController.m in Sources */,
 				148D825A1A30208E00687AC6 /* main.m in Sources */,
 			);
