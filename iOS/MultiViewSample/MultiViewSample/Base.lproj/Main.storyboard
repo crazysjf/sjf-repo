@@ -373,22 +373,6 @@
             <point key="canvasLocation" x="283.5" y="1769"/>
         </scene>
         <!--Navigation Controller-->
-        <scene sceneID="hS1-7c-8V5">
-            <objects>
-                <navigationController id="qu6-2H-wKS" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Shs-La-i9q">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="q2g-DJ-cU9" kind="relationship" relationship="rootViewController" id="kFL-SY-Hns"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="VIy-kV-QDS" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-466.5" y="1769"/>
-        </scene>
-        <!--Navigation Controller-->
         <scene sceneID="nLI-oj-TGs">
             <objects>
                 <navigationController storyboardIdentifier="Fonts" id="Cba-m4-qHI" sceneMemberID="viewController">
@@ -506,6 +490,6 @@
         <image name="Image" width="180" height="180"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="kFL-SY-Hns"/>
+        <segue reference="Zi4-FP-Ylh"/>
     </inferredMetricsTieBreakers>
 </document>
