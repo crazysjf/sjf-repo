@@ -13,8 +13,10 @@
 ;; 不生成临时文件
 (setq-default make-backup-files nil)
 
-;; 不显示工具栏
-(tool-bar-mode -1)
+;; 不显示工具栏(仅对GUI方式启动有效)
+(when (display-graphic-p)
+  (tool-bar-mode -1))
+  
 
 ;; C-x C-b：在当前窗口显示BufferList而不是新开一个窗口
 (global-set-key "\C-x\C-b" 'buffer-menu)
@@ -25,6 +27,10 @@
 			       ;; add major mode setting here, if needed, for example:
                                ;; (text-mode)
 			       (org-mode))))
+
+;; 改善dired中的文件大小的可读性
+(setq dired-listing-switches "-alh") 
+
 
 ;; 加载额外的软件包
 (require 'redo+)
